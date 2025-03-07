@@ -16,29 +16,25 @@
     font-weight: bold;
 }
 
-/* Optional body styling */
 body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    /* Gives a neutral background behind the map */
     background-color: #f5f5f5;
   }
   
   /* The main SVG container */
   .map {
-    /* Adds a subtle border & drop shadow around your SVG */
     border: 2px solid #ccc;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
-    /* Center the map container, if you like */
     display: block;
     margin: 5rem auto;
   }
   
   /* States (each path) */
   .state {
-    fill: #ddd; /* Light gray fill */
-    stroke: #fff; /* White borders between states */
+    fill: #ddd; 
+    stroke: #fff; 
     stroke-width: 1px;
     transition: fill 0.2s ease-out;
   }
@@ -46,6 +42,6 @@ body {
   /* States on hover */
   .state:hover {
     cursor: pointer;
-    fill: #ffc107; /* A highlight color on hover */
+    fill: #ffc107;
   }
   
