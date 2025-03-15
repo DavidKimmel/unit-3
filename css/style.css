@@ -1,47 +1,76 @@
-.axis path,
-.axis line {
-    fill: none;
-    stroke: black;
-    stroke-width: 1px;
-    shape-rendering: crispEdges;
+/* Remove default browser margins */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #f7f7f7;
 }
 
-.axis text {
-    font-family: sans-serif;
-    font-size: 0.9em;
-}
-.title {
-    font-family: sans-serif;
-    font-size: 1.5em;
-    font-weight: bold;
+/* MAP SVG */
+.map {
+  display: inline-block;
+  vertical-align: top;
+  /* width: 48%; */
+  /* height: 600px; */
+  margin: 10px 1%;
+  box-sizing: border-box;
+  border: 1px solid #605e63;
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-  }
-  
-  /* The main SVG container */
-  .map {
-    border: 2px solid #ccc;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15);
-    display: block;
-    margin: 5rem auto;
-  }
-  
-  /* States (each path) */
-  .state {
-    fill: #ddd; 
-    stroke: #fff; 
-    stroke-width: 1px;
-    transition: fill 0.2s ease-out;
-  }
-  
-  /* States on hover */
-  .state:hover {
-    cursor: pointer;
-    fill: #ffc107;
-  }
-  
+/* SCROLLABLE CHART DIV */
+.chartContainer {
+  display: inline-block;
+  vertical-align: top;
+  /* width: 38%; */
+  height: 600px;
+  margin: 10px 1%;
+  box-sizing: border-box;
+  border: 1px solid #999;
+  overflow-y: scroll;
+  background-color: #ffffff;
+}
+
+
+/* Map state styling */
+.state {
+  stroke: #2e2b2b;
+  stroke-width: .7;
+}
+
+/* Axes styling for the chart */
+.x.axis path, .y.axis path,
+.x.axis line, .y.axis line {
+  stroke: #444;
+  shape-rendering: crispEdges;
+}
+
+.y.axis text {
+  font-size: 1.3em;
+  fill: #333;
+}
+
+.x.axis text {
+  font-size: 12px;
+  fill: #333;
+  transform: rotate(-35);
+}
+
+/* Chart title styling */
+.chartTitle {
+  font-size: 1.2em;
+  font-weight: bold;
+  fill: #333;
+}
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: auto;
+  padding: 5px;
+  font: 12px sans-serif;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  border: 0;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
