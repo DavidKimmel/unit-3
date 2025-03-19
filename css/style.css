@@ -5,29 +5,16 @@ html, body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background-color: #f7f7f7;
 }
-
-/* MAP SVG */
 .map {
-  display: inline-block;
-  vertical-align: top;
-  /* width: 48%; */
-  /* height: 600px; */
-  margin: 10px 1%;
-  box-sizing: border-box;
-  border: 1px solid #605e63;
+  border: medium solid #999;
+  margin: 10px 0 0 20px;
 }
 
-/* SCROLLABLE CHART DIV */
 .chartContainer {
-  display: inline-block;
-  vertical-align: top;
-  /* width: 38%; */
-  height: 600px;
-  margin: 10px 1%;
-  box-sizing: border-box;
-  border: 1px solid #999;
-  overflow-y: scroll;
-  background-color: #ffffff;
+  background-color: rgba(128,128,128,0.2);
+  border: medium solid #999;
+  float: right;
+  margin: 10px 20px 0 0;
 }
 
 
