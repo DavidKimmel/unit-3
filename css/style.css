@@ -3,7 +3,24 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: #f7f7f7;
+  background-color: #343131;
+  color: #fff;
+}
+header {
+  text-align: center;
+  padding: 16px;
+  background-color: #ffffff;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2em;
+  color: #333;
+}
+
+header .source {
+  font-size: 0.9em;
+  color: #666;
 }
 .map {
   border: medium solid #999;
@@ -11,12 +28,11 @@ html, body {
 }
 
 .chartContainer {
-  background-color: rgba(128,128,128,0.2);
+  background-color: rgb(255, 255, 255);
   border: medium solid #999;
   float: right;
   margin: 10px 20px 0 0;
 }
-
 
 /* Map state styling */
 .state {
@@ -53,11 +69,27 @@ html, body {
   text-align: center;
   width: auto;
   padding: 5px;
-  font: 12px sans-serif;
-  background: rgba(0, 0, 0, 0.9);
+  font: 14px sans-serif;
+  background: rgb(236, 29, 29);
   color: #fff;
   border: 0;
   border-radius: 3px;
   pointer-events: none;
 }
 
+.dropdown {
+  position: absolute;
+  top: 160px;
+  left: 50px;
+  z-index: 10;
+  font-family: sans-serif;
+  font-size: 1em;
+  font-weight: bold;
+  padding: 2px;
+  border: 1px solid #999;
+  box-shadow: 2px 2px 4px #999;
+}
+
+.dropdown option {
+  font-weight: normal;
+}
