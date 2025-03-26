@@ -15,18 +15,26 @@
     window.onload = setMap;
 
     //==========================================
-    // CREATE MAP (600×600) & LOAD DATA
+    // CREATE MAP (800×600) & LOAD DATA
     //==========================================
     function setMap(){
         var mapWidth = 800,
             mapHeight = 600;
 
-        // Create the SVG container for the map
-        var map = d3.select("body")
-            .append("svg")
-            .attr("class", "map")
+        // Create a container for the map that is positioned relative.
+        // This container will allow us to position the dropdown inside it.
+        var mapContainer = d3.select("body")
+            .append("div")
+            .attr("class", "mapContainer")
+            .style("position", "relative")
             .style("float", "left")
-            .style("margin-right", "20px")
+            .style("margin-right", "20px")  // 20px gap to the chart
+            .style("width", mapWidth + "px")
+            .style("height", mapHeight + "px");
+
+        // Append the SVG for the map inside the container
+        var map = mapContainer.append("svg")
+            .attr("class", "map")
             .attr("width", mapWidth)
             .attr("height", mapHeight);
 
@@ -34,18 +42,18 @@
         var statesGroup = map.append("g")
             .attr("class", "statesGroup");
 
-        // Define zoom-related variables and functions in the setMap scope
+        // Define zoom behavior and helper functions
         var active = d3.select(null);
         var zoom = d3.zoom()
             .scaleExtent([1, 8])
             .on("zoom", zoomed);
         map.call(zoom);
 
-        function zoomed(event) {
+        function zoomed(event){
             statesGroup.attr("transform", event.transform);
         }
 
-        function resetZoom() {
+        function resetZoom(){
             active.classed("active", false);
             active = d3.select(null);
             map.transition()
@@ -53,17 +61,18 @@
                 .call(zoom.transform, d3.zoomIdentity);
         }
 
-        // Append the background rectangle AFTER defining resetZoom so it's available
+        // Append background rectangle and attach resetZoom on click
         map.append("rect")
             .attr("width", mapWidth)
             .attr("height", mapHeight)
-            .attr("fill", "rgb(255, 255, 255)")
-            .lower()  // ensure it is behind the states
+            .attr("fill", "rgb(255,255,255)")
+            .lower()
             .on("click", resetZoom);
 
         // Create a tooltip for the map
         var mapTooltip = d3.select("body").append("div")
             .attr("class", "tooltip")
+            .style("opacity", 0);
 
         // Load data (CSV and TopoJSON)
         var promises = [
@@ -82,17 +91,21 @@
 
             // Create an Albers USA projection and fit it to the map dimensions
             var projection = d3.geoAlbersUsa()
-                .fitExtent([[20, 20], [mapWidth - 10, mapHeight - 10]], usStates);
+                .fitExtent([[20,20], [mapWidth-10, mapHeight-10]], usStates);
             var path = d3.geoPath().projection(projection);
 
             var colorScale = makeColorScale(csvData);
 
-            // Add states to the statesGroup with zoom-on-click behavior
+            // Add states to the statesGroup with linked highlighting and zoom-on-click behavior
             statesGroup.selectAll(".state")
                 .data(usStates.features)
                 .enter()
                 .append("path")
-                .attr("class", "state")
+                .attr("class", function(d) {
+                    // Create a class using the state name (remove spaces)
+                    return "state state-" + d.properties.name.replace(/\s+/g, "");
+                })
+                .attr("data-name", function(d){ return d.properties.name; })
                 .attr("d", path)
                 .style("fill", function(d){
                     var val = d.properties[expressed];
@@ -106,9 +119,14 @@
                       .style("stroke-width", "2");
                     mapTooltip.transition()
                         .duration(200)
+                        .style("opacity", 0.9);
                     mapTooltip.html("Total Deaths: <strong>" + d.properties[expressed] + "</strong>")
                         .style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 28) + "px");
+                    // Linked highlighting: highlight corresponding bar(s)
+                    d3.selectAll(".bar")
+                      .filter(function(b){ return b.name === d.properties.name; })
+                      .classed("linkedHighlight", true);
                 })
                 .on("mouseout", function(event, d){
                     d3.select(this)
@@ -116,11 +134,15 @@
                       .style("stroke-width", ".7");
                     mapTooltip.transition()
                         .duration(500)
+                        .style("opacity", 0);
+                    // Remove linked highlight from bars
+                    d3.selectAll(".bar")
+                      .filter(function(b){ return b.name === d.properties.name; })
+                      .classed("linkedHighlight", false);
                 })
                 .on("click", clicked);
 
             function clicked(event, d){
-                // If the clicked state is already active, reset zoom
                 if (active.node() === this) return resetZoom();
                 active.classed("active", false);
                 active = d3.select(this).classed("active", true);
@@ -130,15 +152,15 @@
                     dy = bounds[1][1] - bounds[0][1],
                     x = (bounds[0][0] + bounds[1][0]) / 2,
                     y = (bounds[0][1] + bounds[1][1]) / 2,
-                    scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / mapWidth, dy / mapHeight))),
-                    translate = [mapWidth/2 - scale * x, mapHeight/2 - scale * y];
+                    scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx/mapWidth, dy/mapHeight))),
+                    translate = [mapWidth/2 - scale*x, mapHeight/2 - scale*y];
 
                 map.transition()
                    .duration(750)
                    .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
             }
 
-            // Create the horizontal bar chart and dropdown as before
+            // Create the horizontal bar chart and dropdown menu
             setChart(csvData, colorScale);
             createDropdown(csvData, mapWidth, mapHeight);
         }
@@ -238,12 +260,15 @@
             .data(csvData)
             .enter()
             .append("rect")
-            .attr("class", "bar")
+            .attr("class", function(d){
+                return "bar bar-" + d.name.replace(/\s+/g, "");
+            })
+            .attr("data-name", function(d){ return d.name; })
             .attr("x", 0)
             .attr("y", d => yScale(d.name))
             .attr("width", d => xScale(+d[expressed]))
             .attr("height", yScale.bandwidth())
-            .style("fill", d => {
+            .style("fill", function(d){
                 var val = +d[expressed];
                 return val ? colorScale(val) : "#ccc";
             });
@@ -251,16 +276,27 @@
         tooltip = tooltip.enter().append("div")
             .attr("class", "tooltip")
             .merge(tooltip)
+            .style("opacity", 0);
         bars.on("mouseover", function(event, d){
                 tooltip.transition()
                     .duration(200)
+                    .style("opacity", 0.9);
                 tooltip.html("Total Deaths: <strong>" + d[expressed] + "</strong>")
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 28) + "px");
+                // Linked highlighting: highlight corresponding state on the map
+                d3.selectAll(".state")
+                    .filter(function(s){ return s.properties.name === d.name; })
+                    .classed("linkedHighlight", true);
             })
-            .on("mouseout", function(){
+            .on("mouseout", function(event, d){
                 tooltip.transition()
                     .duration(500)
+                    .style("opacity", 0);
+                // Remove linked highlight from corresponding state
+                d3.selectAll(".state")
+                    .filter(function(s){ return s.properties.name === d.name; })
+                    .classed("linkedHighlight", false);
             });
         var yAxis = d3.axisLeft(yScale);
         barsGroup.append("g")
@@ -289,17 +325,24 @@
     // CREATE DROPDOWN MENU
     //==========================================
     function createDropdown(csvData, mapWidth, mapHeight){
-        var dropdown = d3.select("body")
+        // Append the dropdown to the mapContainer so it stays in the upper left of the map
+        d3.select(".mapContainer")
             .append("select")
             .attr("class", "dropdown")
+            .style("position", "absolute")
+            .style("top", "30px")
+            .style("left", "30px")
+            .style("z-index", 9999)
             .on("change", function(){
                 changeAttribute(this.value, csvData);
-            });
-        dropdown.append("option")
+            })
+          .append("option")
             .attr("class", "titleOption")
             .attr("disabled", "true")
             .text("Select Year");
-        dropdown.selectAll("option.attrOptions")
+
+        d3.select(".dropdown")
+            .selectAll("option.attrOptions")
             .data(attrArray)
             .enter()
             .append("option")
@@ -336,7 +379,7 @@
             .duration(500)
             .attr("y", d => chartProps.yScale(d.name))
             .attr("width", d => chartProps.xScale(+d[expressed]))
-            .style("fill", d => {
+            .style("fill", function(d){
                 var val = +d[expressed];
                 return val ? colorScale(val) : "#ccc";
             });
